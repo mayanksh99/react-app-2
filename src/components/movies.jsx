@@ -1,15 +1,23 @@
 import React, { Component } from "react";
 import Like from "./common/like";
 import { getMovies } from "../services/fakeMovieService";
+import Pagination from "./common/pagination";
+import { paginate } from "../utils/paginate";
 
 class Movies extends Component {
   state = {
-    movies: getMovies()
+    movies: getMovies(),
+    currentPage: 1,
+    pageSize: 4
   };
 
   deleteMovies = movie => {
     const movies = this.state.movies.filter(m => m._id !== movie._id);
     this.setState({ movies: movies });
+  };
+
+  pageChange = page => {
+    this.setState({ currentPage: page });
   };
 
   handleLike = movie => {
@@ -21,32 +29,35 @@ class Movies extends Component {
   };
 
   render() {
-    if (this.state.movies.length === 0)
-      return <p>There is no movies in the database</p>;
+    let count = this.state.movies.length;
+    const { pageSize, currentPage, movies: allmovies } = this.state;
+
+    if (count === 0) return <p>There is no movies in the database</p>;
+
+    const movies = paginate(allmovies, currentPage, pageSize);
+
     return (
       <React.Fragment>
-        <p className="m-4">
-          Showing {this.state.movies.length} movies in the database
-        </p>
+        <p className="m-4">Showing {count} movies in the database</p>
         <table className="table m-4">
           <thead>
             <tr>
-              <th scope="col">Title</th>
-              <th scope="col">Genre</th>
-              <th scope="col">Stock</th>
-              <th scope="col">Rate</th>
+              <th>Title</th>
+              <th>Genre</th>
+              <th>Stock</th>
+              <th>Rate</th>
               <th></th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {this.state.movies.map(movie => (
+            {movies.map(movie => (
               <tr key={movie._id}>
-                <td className="p-4">{movie.title}</td>
-                <td className="p-4">{movie.genre.name}</td>
-                <td className="p-4">{movie.numberInStock}</td>
-                <td className="p-4">{movie.dailyRentalRate}</td>
-                <td className="p-4">
+                <td>{movie.title}</td>
+                <td>{movie.genre.name}</td>
+                <td>{movie.numberInStock}</td>
+                <td>{movie.dailyRentalRate}</td>
+                <td>
                   <Like
                     liked={movie.liked}
                     onClick={() => this.handleLike(movie)}
@@ -62,6 +73,14 @@ class Movies extends Component {
             ))}
           </tbody>
         </table>
+        <div className="container">
+          <Pagination
+            itemsCount={count}
+            pageSize={pageSize}
+            currentPage={currentPage}
+            onPageChange={this.pageChange}
+          />
+        </div>
       </React.Fragment>
     );
   }
