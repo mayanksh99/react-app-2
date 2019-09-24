@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import MoviesTable from "./moviesTable";
 import ListGroup from "./common/listGroup";
 import { getMovies } from "../services/fakeMovieService";
@@ -86,8 +87,11 @@ class Movies extends Component {
               onGenreSelect={this.genreSelect}
             />
           </div>
-          <div className="col">
-            <p className="m-4">Showing {totalCount} movies in the database</p>
+          <div className="col mt-4">
+            <Link className="btn btn-primary" to="/movie/new">
+              New Movie
+            </Link>
+            <p className="mt-2">Showing {totalCount} movies in the database</p>
             <MoviesTable
               movies={movies}
               sortColumn={sortColumn}

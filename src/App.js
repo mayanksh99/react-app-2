@@ -16,6 +16,7 @@ function App() {
       <NavBar />
       <main className="container mt-2">
         <Switch>
+          <Route path="/movie/new" component={MovieForm} />
           <Route path="/login" component={LoginForm} />
           <Route path="/register" component={RegisterForm} />
           <Route path="/movies/:id" component={MovieForm} />
