@@ -1,12 +1,12 @@
 import React from "react";
 import Joi from "joi-browser";
 import Form from "./common/form";
+import { saveMovie } from "../services/fakeMovieService";
 
 class MovieForm extends Form {
   state = {
     data: {
       title: "",
-      genre: "",
       numberInStock: "",
       dailyRentalRate: ""
     },
@@ -17,7 +17,6 @@ class MovieForm extends Form {
     title: Joi.string()
       .required()
       .label("Title"),
-    genre: Joi.string().required(),
     numberInStock: Joi.number()
       .min(0)
       .max(100)
@@ -34,6 +33,16 @@ class MovieForm extends Form {
     console.log("Submitted");
   };
 
+  newMovie = () => {
+    const movie = {
+      title: this.state.data.title,
+      genre: { name: "Action" },
+      numberInStock: this.state.data.numberInStock,
+      dailyRentalRate: this.state.data.dailyRentalRate
+    };
+    saveMovie(movie);
+  };
+
   render() {
     const { match, history } = this.props;
     return (
@@ -41,7 +50,7 @@ class MovieForm extends Form {
         <h1>Movie Form {match.params.id}</h1>
         <form onSubmit={this.handleSumbit}>
           {this.renderInput("title", "Title")}
-          <div className="mb-3">
+          {/* <div className="mb-3">
             <label htmlFor="FormControlSelect">Genre</label>
             <select
               className="form-control"
@@ -50,19 +59,21 @@ class MovieForm extends Form {
               errors={this.state.errors.genre}
               id="FormControlSelect"
             >
-              <option defaultValue>Action</option>
+              <option>Action</option>
               <option>Comedy</option>
               <option>Thriller</option>
             </select>
-          </div>
+          </div> */}
           {this.renderInput("numberInStock", "Number In Stock")}
           {this.renderInput("dailyRentalRate", "Rate")}
-          {this.renderButton("Log In")}
         </form>
         <button
-          className="btn btn-secondary"
+          className="btn btn-primary"
           disabled={this.validate()}
-          onClick={() => history.push("/movies")}
+          onClick={() => {
+            this.newMovie();
+            history.push("/movies");
+          }}
         >
           Save
         </button>
