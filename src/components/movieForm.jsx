@@ -1,22 +1,29 @@
 import React from "react";
 import Joi from "joi-browser";
 import Form from "./common/form";
-import { saveMovie } from "../services/fakeMovieService";
+import { getMovie, saveMovie } from "../services/fakeMovieService";
+import { getGenres } from "../services/fakeGenreService";
 
 class MovieForm extends Form {
   state = {
     data: {
       title: "",
+      genreId: "",
       numberInStock: "",
       dailyRentalRate: ""
     },
+    genres: [],
     errors: {}
   };
 
   schema = {
+    _id: Joi.string(),
     title: Joi.string()
       .required()
       .label("Title"),
+    genreId: Joi.string()
+      .required()
+      .label("Genre"),
     numberInStock: Joi.number()
       .min(0)
       .max(100)
@@ -29,54 +36,45 @@ class MovieForm extends Form {
       .label("Daily Rental Rate")
   };
 
+  componentDidMount() {
+    const genres = getGenres();
+    this.setState({ genres });
+
+    const movieId = this.props.match.params.id;
+    if (movieId === "new") return;
+
+    const movie = getMovie(movieId);
+    if (!movie) return this.props.history.replace("/not-found");
+
+    this.setState({ data: this.newMovie(movie) });
+  }
+
   doSubmit = () => {
-    console.log("Submitted");
+    saveMovie(this.state.data);
+    this.props.history.push("/movies");
   };
 
-  newMovie = () => {
-    const movie = {
-      title: this.state.data.title,
-      genre: { name: "Action" },
-      numberInStock: this.state.data.numberInStock,
-      dailyRentalRate: this.state.data.dailyRentalRate
+  newMovie(movie) {
+    return {
+      _id: movie._id,
+      title: movie.title,
+      genreId: movie.genre._id,
+      numberInStock: movie.numberInStock,
+      dailyRentalRate: movie.dailyRentalRate
     };
-    saveMovie(movie);
-  };
+  }
 
   render() {
-    const { match, history } = this.props;
     return (
       <div>
-        <h1>Movie Form {match.params.id}</h1>
+        <h1>Movie Form</h1>
         <form onSubmit={this.handleSumbit}>
           {this.renderInput("title", "Title")}
-          {/* <div className="mb-3">
-            <label htmlFor="FormControlSelect">Genre</label>
-            <select
-              className="form-control"
-              value={this.state.data.genre}
-              name={this.state.data.genre}
-              errors={this.state.errors.genre}
-              id="FormControlSelect"
-            >
-              <option>Action</option>
-              <option>Comedy</option>
-              <option>Thriller</option>
-            </select>
-          </div> */}
+          {this.renderSelect("genreId", "Genre", this.state.genres)}
           {this.renderInput("numberInStock", "Number In Stock")}
           {this.renderInput("dailyRentalRate", "Rate")}
+          {this.renderButton("Save")}
         </form>
-        <button
-          className="btn btn-primary"
-          disabled={this.validate()}
-          onClick={() => {
-            this.newMovie();
-            history.push("/movies");
-          }}
-        >
-          Save
-        </button>
       </div>
     );
   }
