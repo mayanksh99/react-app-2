@@ -1,5 +1,5 @@
-const apiUrl = "http://localhost:3900/api/";
+import axios from "axios";
 
-export const getGenres = `${apiUrl}genres`;
-
-export const getMovies = `${apiUrl}movies`;
+export function getGenres() {
+  return axios.get("http://localhost:3900/api/genres");
+}
