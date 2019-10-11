@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import MoviesTable from "./moviesTable";
 import ListGroup from "./common/listGroup";
-import { getMovies } from "../services/fakeMovieService";
+// import { getMovies } from "../services/fakeMovieService";
 import Pagination from "./common/pagination";
 import { paginate } from "../utils/paginate";
-import { getGenres } from "../services/fakeGenreService";
+import * as ROUTES from "../services/GenreServices";
 import _ from "lodash";
 import Search from "./common/searchBox";
 
@@ -20,10 +21,14 @@ class Movies extends Component {
     pageSize: 4
   };
 
-  componentDidMount = () => {
-    const genres = [{ _id: "", name: "All Genre" }, ...getGenres()];
-    this.setState({ movies: getMovies(), genres });
-  };
+  async componentDidMount() {
+    const response = await axios.get(ROUTES.getGenres);
+    const genres = [{ _id: "", name: "All Genre" }, ...response.data];
+
+    axios.get(ROUTES.getMovies).then(res => {
+      this.setState({ movies: res.data, genres });
+    });
+  }
 
   deleteMovies = movie => {
     const movies = this.state.movies.filter(m => m._id !== movie._id);
