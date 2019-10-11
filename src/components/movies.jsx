@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-
+import { ToastContainer, toast } from "react-toastify";
 import MoviesTable from "./moviesTable";
 import ListGroup from "./common/listGroup";
-import { getMovies } from "../services/MoviesServices";
+import { getMovies, deleteMovies } from "../services/MoviesServices";
 import Pagination from "./common/pagination";
 import { paginate } from "../utils/paginate";
 import { getGenres } from "../services/GenreServices";
 import _ from "lodash";
+import "react-toastify/dist/ReactToastify.css";
 import Search from "./common/searchBox";
 
 class Movies extends Component {
@@ -29,9 +30,19 @@ class Movies extends Component {
     this.setState({ movies, genres });
   }
 
-  deleteMovies = movie => {
-    const movies = this.state.movies.filter(m => m._id !== movie._id);
+  deleteMovies = async movie => {
+    const originalMovies = this.state.movies;
+    const movies = originalMovies.filter(m => m._id !== movie._id);
     this.setState({ movies: movies });
+
+    try {
+      await deleteMovies(movie._id);
+    } catch (ex) {
+      if (ex.response && ex.response.status === 404)
+        toast.error("This movie is already deleted");
+
+      this.setState({ movies: originalMovies });
+    }
   };
 
   genreSelect = genre => {
@@ -95,6 +106,7 @@ class Movies extends Component {
 
     return (
       <React.Fragment>
+        <ToastContainer />
         <div className="row">
           <div className="col-3 mt-4">
             <ListGroup

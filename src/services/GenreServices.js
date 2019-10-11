@@ -1,5 +1,6 @@
 import axios from "axios";
+import { apiUrl } from "./config.json";
 
 export function getGenres() {
-  return axios.get("http://localhost:3900/api/genres");
+  return axios.get(apiUrl + "/genres");
 }
